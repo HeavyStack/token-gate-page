@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Token Gated Content</title>
+  <script src="https://cdn.jsdelivr.net/npm/@thirdweb-dev/sdk/dist/thirdweb.umd.min.js"></script>
+  <script>
+    async function checkAccess() {
+      try {
+        // Initialize ThirdwebSDK for Cronos mainnet
+        const { ThirdwebSDK } = window.thirdweb;
+        const sdk = new ThirdwebSDK("https://evm.cronos.org"); // RPC URL for Cronos
+
+        // Connect Wallet
+        const walletAddress = await sdk.wallet.connect();
+
+        // Specify the NFT collection contract address on Cronos
+        const nftCollection = sdk.getNFTCollection("0x14f9890f033127a815A712c597552BfD6Ca8eB3e");
+
+        // Check if the wallet owns any NFTs in this collection
+        const hasNFT = await nftCollection.hasNFT(walletAddress);
+
+        if (hasNFT) {
+          // Display gated content and hide the connect button
+          document.getElementById("gatedContent").style.display = "block";
+          document.getElementById("connectWallet").style.display = "none";
+        } else {
+          document.getElementById("errorMessage").innerText = "You do not own the required NFT to access this content.";
+        }
+      } catch (error) {
+        console.error("Error checking NFT ownership:", error);
+        document.getElementById("errorMessage").innerText = "An error occurred. Please try again.";
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="gatedContent" style="display: none;">
+    <h1>Welcome to the Exclusive Content</h1>
+    <p>This content is only available to NFT holders.</p>
+  </div>
+  <button id="connectWallet" onclick="checkAccess()">Connect Wallet to Access</button>
+  <div id="errorMessage" style="color: red;"></div>
+</body>
+</html>
